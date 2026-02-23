@@ -92,24 +92,3 @@
 
 ;;14
 
-(define path (lambda (n BTS)
-               (letrec
-                   (
-                    (verNúmero (lambda (BTS) (car BTS)))
-
-                 (irIzquierda (lambda (BTS) (car (cdr BTS))))
-
-               (irDerecha (lambda (BTS) (car (cdr (cdr BTS)))))
-               )
-                 (cond
-                   [(null? BTS) #f]
-                   [(= (verNúmero BTS) n) '()]
-                   [else (let (
-                             (caminoIzquierda (path n (irIzquierda BTS))))
-                           (if (not (eq? caminoIzquierda #f)) (cons "left" caminoIzquierda)
-                               (let
-                                   ((caminoDerecha (path n (irDerecha BTS))))
-                                 (if (not (eq? caminoDerecha #f)) (cons "right" caminoDerecha) #f))
-                           ))]
-                   ))))
-                 
