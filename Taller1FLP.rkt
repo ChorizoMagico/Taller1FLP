@@ -1,94 +1,97 @@
 #lang eopl
 
+;;1
+(define aplicarPredicado (lambda (L P)
+                                      (if
+                                       (and (P (car L)) (P (cadr L))) (cons (cadr L) (cons (car L) '()))
+                                       '()
+                                       )))
+                                        
 
-;;8
-
-(define mapping (lambda (F L1 L2)
-  (letrec (
-           (mapearUno (lambda (F sim L2)
-                        (cond
-                          [(null? L2) '()]
-                          [(= (F sim) (car L2)) (cons (list sim (car L2)) (mapearUno F sim (cdr L2)))]
-                          [else (mapearUno F sim (cdr L2))]
-                          )
-                        )
-           )
-           (concatenarAlFinal (lambda (L sim)
-                            (if (null? L) (cons sim L) (cons (car L) (concatenarAlFinal (cdr L) sim))))
-                            )
-           (unirListas (lambda (L1 L2)
-                         (if (null? L2) L1 (unirListas (concatenarAlFinal L1 (car L2)) (cdr L2)))
-                         )))
-    (if (null? L1) '() (unirListas (mapearUno F (car L1) L2) (mapping F (cdr L1) L2))))))
-
-
-
-
-
-;;9
-
-(define inversions (lambda (L)
-                      (letrec (
-                               (comparadorSucesivo  (lambda (num L acum) 
-                                                  (cond
-                                                    [(null? L) acum]
-                                                    [(> num (car L)) (comparadorSucesivo num (cdr L) (+ acum 1))]
-                                                    [else (comparadorSucesivo num (cdr L) acum)]
-                                                    )))
+(define invert (lambda (L P)
+                            (cond
+                               [(null? L) '()]
+                               [(null? (aplicarPredicado (car L) P)) (invert (cdr L) P)]
+                               [else (cons (aplicarPredicado (car L) P) (invert (cdr L) P))]
                                )
+                             ))
+
+;;2
+(define down (lambda (L) 
                         (if
-                        (null? L) 0
-                        (+ (comparadorSucesivo (car L) (cdr L) 0) (inversions (cdr L))))
-                        )               
-                      ))
+                          (null? L) '()
+                          (cons (cons (car L) '()) (down (cdr L)))
+                         )))
 
-;;10
+;;3
+(define acumulador (lambda(L n x P acum)
+                                        (if
+                                          (eq? acum n)
+                                               (if (P (car L))
+                                                (cons x (cdr L))
+                                                L)
+                                          (cons (car L) (acumulador (cdr L) n x P (+ 1 acum)))
+                                         )))
 
-(define balanced-parentheses? (lambda (L)
-                                (letrec (
-                                         (contadorParéntesis (lambda (counter L)
-                             (cond
-                               [(null? L) (if (= counter 0) #t #f) ]
-                               [(< counter 0) #f]
-                               [(eq? (car L) "(") (contadorParéntesis (+ counter 1) (cdr L))]
-                               [(eq? (car L) ")") (contadorParéntesis (- counter 1) (cdr L))]
-                               [else (contadorParéntesis counter (cdr L))]
-                             )))
-                                         )
+(define list-set (lambda (L n x P)
+                                   (cond
+                                     [(null? L) '()]
+                                     [else (acumulador L n x P 0)]
+                                   )))
 
-                                  (contadorParéntesis 0 L)
-                                  )
-                                ))
-
-;;11
-
-
-(define zip (lambda (F L1 L2)
-              (if (null? L1) '() (cons (F (car L1) (car L2)) (zip F (cdr L1) (cdr L2))
-              ))))
-
-;;12
-
-(define filter-acum (lambda (a b F acum filter)
-                      (cond
-                        [(> a b) acum]
-                        [(filter a) (filter-acum (+ a 1) b F (F a acum) filter)]
-                        [else (filter-acum (+ a 1) b F acum filter)]
-                        )
-                      ))
-;;13
+;;4
+(define filter-in (lambda (P L)
+                                (cond
+                                 [(null? L) '()]
+                                 [(P (car L)) (cons (car L) (filter-in P (cdr L)))]
+                                 [else (filter-in P (cdr L))]
+                                 )))
 
 
-(define operate (lambda (lrators lrands)
-                  (letrec
-                      ((operarConAcum (lambda (lrators lrands acum)
-                                     (cond
-                                       [(null? (cdr lrators)) ((car lrators) acum (car lrands) )]
-                                       [else (operarConAcum (cdr lrators) (cdr lrands) ((car lrators) acum (car lrands)))]
-                                       )
-                                     )))
-                    (operarConAcum lrators (cdr lrands) (car lrands) ))))
+;;5
+(define palindrome? (lambda (palabra)
+                      (letrec (
+                               (invertirPalabra (lambda (L acum)
+                                 (if
+                                  (null? L) acum
+                                  (invertirPalabra (cdr L) (cons (car L) acum))
+                                  ))))
+                        (if
+                         (null? palabra) '()
+                         (equal? palabra (invertirPalabra palabra '()))
+                         ))))
+
+;;6
+(define swapper (lambda (E1 E2 L)
+                                (cond
+                                 [(null? L) '()]
+                                 [(eq? (car L) E1) (cons E2 (swapper E1 E2 (cdr L)))]
+                                 [(eq? (car L) E2) (cons E1 (swapper E1 E2 (cdr L)))]
+                                 [else (cons (car L) (swapper E1 E2 (cdr L)))]
+                                 )))
+
+;;7
+(define cartesian-product (lambda (L1 L2)
+                      (letrec (
+                               (unirListas (lambda (L1 L2)
+                                 (if (null? L1) L2
+                                     (cons (car L1) (unirListas (cdr L1) L2)))))
+                               (combinacion (lambda (L1 L2)
+                                 (cond
+                                  [(null? L1) '()]
+                                  [(null? L2) '()]
+                                  [else (cons (list (car L1) (car L2)) (combinacion L1 (cdr L2)))]
+                                  ))))
+                        (cond
+                         [(null? L1) '()]
+                         [(null? L2) '()]
+                         [else (unirListas (combinacion L1 L2) (cartesian-product (cdr L1) L2))]
+                         ))))
 
 
-;;14
+;;16
+
+
+
+
 
