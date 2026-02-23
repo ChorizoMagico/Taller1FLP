@@ -1,0 +1,94 @@
+#lang eopl
+
+
+;;8
+
+(define mapping (lambda (F L1 L2)
+  (letrec (
+           (mapearUno (lambda (F sim L2)
+                        (cond
+                          [(null? L2) '()]
+                          [(= (F sim) (car L2)) (cons (list sim (car L2)) (mapearUno F sim (cdr L2)))]
+                          [else (mapearUno F sim (cdr L2))]
+                          )
+                        )
+           )
+           (concatenarAlFinal (lambda (L sim)
+                            (if (null? L) (cons sim L) (cons (car L) (concatenarAlFinal (cdr L) sim))))
+                            )
+           (unirListas (lambda (L1 L2)
+                         (if (null? L2) L1 (unirListas (concatenarAlFinal L1 (car L2)) (cdr L2)))
+                         )))
+    (if (null? L1) '() (unirListas (mapearUno F (car L1) L2) (mapping F (cdr L1) L2))))))
+
+
+
+
+
+;;9
+
+(define inversions (lambda (L)
+                      (letrec (
+                               (comparadorSucesivo  (lambda (num L acum) 
+                                                  (cond
+                                                    [(null? L) acum]
+                                                    [(> num (car L)) (comparadorSucesivo num (cdr L) (+ acum 1))]
+                                                    [else (comparadorSucesivo num (cdr L) acum)]
+                                                    )))
+                               )
+                        (if
+                        (null? L) 0
+                        (+ (comparadorSucesivo (car L) (cdr L) 0) (inversions (cdr L))))
+                        )               
+                      ))
+
+;;10
+
+(define balanced-parentheses? (lambda (L)
+                                (letrec (
+                                         (contadorParéntesis (lambda (counter L)
+                             (cond
+                               [(null? L) (if (= counter 0) #t #f) ]
+                               [(< counter 0) #f]
+                               [(eq? (car L) "(") (contadorParéntesis (+ counter 1) (cdr L))]
+                               [(eq? (car L) ")") (contadorParéntesis (- counter 1) (cdr L))]
+                               [else (contadorParéntesis counter (cdr L))]
+                             )))
+                                         )
+
+                                  (contadorParéntesis 0 L)
+                                  )
+                                ))
+
+;;11
+
+
+(define zip (lambda (F L1 L2)
+              (if (null? L1) '() (cons (F (car L1) (car L2)) (zip F (cdr L1) (cdr L2))
+              ))))
+
+;;12
+
+(define filter-acum (lambda (a b F acum filter)
+                      (cond
+                        [(> a b) acum]
+                        [(filter a) (filter-acum (+ a 1) b F (F a acum) filter)]
+                        [else (filter-acum (+ a 1) b F acum filter)]
+                        )
+                      ))
+;;13
+
+
+(define operate (lambda (lrators lrands)
+                  (letrec
+                      ((operarConAcum (lambda (lrators lrands acum)
+                                     (cond
+                                       [(null? (cdr lrators)) ((car lrators) acum (car lrands) )]
+                                       [else (operarConAcum (cdr lrators) (cdr lrands) ((car lrators) acum (car lrands)))]
+                                       )
+                                     )))
+                    (operarConAcum lrators (cdr lrands) (car lrands) ))))
+
+
+;;14
+
