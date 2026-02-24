@@ -1,20 +1,18 @@
 #lang eopl
 
 ;;1
-(define aplicarPredicado (lambda (L P)
-                                      (if
-                                       (and (P (car L)) (P (cadr L))) (cons (cadr L) (cons (car L) '()))
-                                       '()
-                                       )))
-                                        
-
 (define invert (lambda (L P)
-                            (cond
-                               [(null? L) '()]
-                               [(null? (aplicarPredicado (car L) P)) (invert (cdr L) P)]
-                               [else (cons (aplicarPredicado (car L) P) (invert (cdr L) P))]
-                               )
-                             ))
+                 (letrec (
+                          (aplicarPredicado (lambda (L P)
+                                             (if
+                                              (and (P (car L)) (P (cadr L))) (cons (cadr L) (cons (car L) '()))
+                                              '()
+                                              ))))
+                   (cond
+                     [(null? L) '()]
+                     [(null? (aplicarPredicado (car L) P)) (invert (cdr L) P)]
+                     [else (cons (aplicarPredicado (car L) P) (invert (cdr L) P))]
+                     ))))
 
 ;;2
 (define down (lambda (L) 
@@ -24,20 +22,20 @@
                          )))
 
 ;;3
-(define acumulador (lambda(L n x P acum)
-                                        (if
-                                          (eq? acum n)
-                                               (if (P (car L))
-                                                (cons x (cdr L))
-                                                L)
-                                          (cons (car L) (acumulador (cdr L) n x P (+ 1 acum)))
-                                         )))
-
 (define list-set (lambda (L n x P)
-                                   (cond
-                                     [(null? L) '()]
-                                     [else (acumulador L n x P 0)]
-                                   )))
+                   (letrec (
+                            (acumulador (lambda (L n x P acum)
+                                          (if
+                                           (eq? acum n)
+                                           (if (P (car L))
+                                               (cons x (cdr L))
+                                               L)
+                                           (cons (car L) (acumulador (cdr L) n x P (+ 1 acum)))
+                                           ))))
+                     (cond
+                       [(null? L) '()]
+                       [else (acumulador L n x P 0)]
+                       ))))
 
 ;;4
 (define filter-in (lambda (P L)
@@ -90,8 +88,25 @@
 
 
 ;;16
+(define hanoi (lambda (n origen auxiliar destino)
+                (letrec (
+                         (unirListas (lambda (L1 L2)
+                                 (if (null? L1) L2
+                                     (cons (car L1) (unirListas (cdr L1) L2))))))
+                                                 (cond
+                                                  [(= n 0) '()]
+                                                  [(= n 1) (cons (list origen destino) '())]
+                                                  [else (unirListas (hanoi (- n 1) origen destino auxiliar) (unirListas (list (list origen destino)) (hanoi (- n 1) auxiliar origen destino)))]
+                                                  ))))
 
-
+;;17
+(define coin-change (lambda (monto monedas)
+                                          (cond
+                                            [(= monto 0) 1]
+                                            [(< monto 0) 0]
+                                            [(null? monedas) 0]
+                                            [else (+ (coin-change (- monto (car monedas)) monedas) (coin-change monto (cdr monedas)))]
+                                            )))
 
 
 
