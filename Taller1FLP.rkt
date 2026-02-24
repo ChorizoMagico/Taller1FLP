@@ -132,8 +132,8 @@
                              (cond
                                [(null? L) (if (= counter 0) #t #f) ]
                                [(< counter 0) #f]
-                               [(eq? (car L) "(") (contadorParéntesis (+ counter 1) (cdr L))]
-                               [(eq? (car L) ")") (contadorParéntesis (- counter 1) (cdr L))]
+                               [(eq? (car L) 'O) (contadorParéntesis (+ counter 1) (cdr L))]
+                               [(eq? (car L) 'C) (contadorParéntesis (- counter 1) (cdr L))]
                                [else (contadorParéntesis counter (cdr L))]
                              )))
                                          )
