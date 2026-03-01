@@ -263,18 +263,52 @@
 ;; Proposito:
 ;; F x L1 x L2 -> L’ : Procedimiento que recibe una función F y dos listas numéricas L1 y L2,
 ;; y retorna una lista de pares (sim valor) tales que para cada elemento sim en L1,
-;; se incluye el par (sim valor) si (F sim) es igual al emento valor en la misma posición en L2.
+;; se incluye el par (sim valor) si (F sim) es igual a algún elemento valor en L2.
 ;; <listas> := ()
 ;;           := (<valor-de-scheme> <listas>)
 
+;; mapearUno :
+;; Proposito:
+;; F x sim x L2 -> L’ : Procedimiento que recibe una función F,
+;; un elemento sim y una lista L2, y retorna una lista de pares
+;; (sim valor) tales que (F sim) es igual a algún elemento valor en L2.
+;;
+;; <listas> := ()
+;; := (<valor-de-scheme> <listas>)
 
+;; concatenarAlFinal :
+;; Proposito:
+;; L x sim -> L’ : Procedimiento que agrega el elemento sim
+;; al final de la lista L.
+;;
+;; <listas> := ()
+;; := (<valor-de-scheme> <listas>)
+
+;; unirListas :
+;; Proposito:
+;; L1 x L2 -> L’ : Procedimiento que une los elementos
+;; de L2 al final de L1 utilizando concatenación sucesiva.
+;;
+;; <listas> := ()
+;; := (<valor-de-scheme> <listas>)
 
 (define mapping (lambda (F L1 L2)
-    (cond
-      [(or (null? L1) (null? L2)) '()]
-      [(= (F (car L1)) (car L2)) (cons (list (car L1) (car L2)) (mapping F (cdr L1) (cdr L2)))]
-      [else (mapping F (cdr L1) (cdr L2))]
-      )))
+  (letrec (
+           (mapearUno (lambda (F sim L2)
+                        (cond
+                          [(null? L2) '()]
+                          [(= (F sim) (car L2)) (cons (list sim (car L2)) (mapearUno F sim (cdr L2)))]
+                          [else (mapearUno F sim (cdr L2))]
+                          )
+                        )
+           )
+           (concatenarAlFinal (lambda (L sim)
+                            (if (null? L) (cons sim L) (cons (car L) (concatenarAlFinal (cdr L) sim))))
+                            )
+           (unirListas (lambda (L1 L2)
+                         (if (null? L2) L1 (unirListas (concatenarAlFinal L1 (car L2)) (cdr L2)))
+                         )))
+    (if (null? L1) '() (unirListas (mapearUno F (car L1) L2) (mapping F (cdr L1) L2))))))
 
 ;; Pruebas
 
