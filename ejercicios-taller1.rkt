@@ -155,10 +155,9 @@
                                   (invertirPalabra (cdr L) (cons (car L) acum))
                                   ))))
                         (if
-                         (null? palabra) '()
+                         (null? palabra) #t
                          (equal? palabra (invertirPalabra palabra '()))
                          ))))
-
 ;; Pruebas palindrome?
 (palindrome? '(r a p a r))
 (palindrome? '(s a n a s))
